@@ -19,8 +19,8 @@ class HTMLNode:
         if self.props:
             res = []
             for k, v in self.props.items():
-                res.append(f'{k}="{v}"')
-            return ' '.join(res)
+                res.append(f' {k}="{v}"')
+            return ''.join(res)
         return ""
     
     def __repr__(self):
@@ -40,6 +40,23 @@ class LeafNode(HTMLNode):
             raise ValueError("All leaf nodes should have a value")
         if not self.tag:
             return str(self.value)
-        if self.props:
-            return f"<{self.tag} {self.props_to_html()}>{self.value}</{self.tag}>"
-        return f"<{self.tag}>{self.value}</{self.tag}>"
+        return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+    
+    def __repr__(self):
+        return f"LeafNode({self.tag}, {self.value}, {self.props})"
+    
+class ParentNode(HTMLNode):
+    def __init__(self,tag,children, props=None):
+        super().__init__(tag, None, children, props)
+    
+    def to_html(self):
+        if not self.tag:
+            raise ValueError("All Parent Nodes must have at tag")
+        if not self.children:
+            raise ValueError("Must have children")
+        res = ""
+        for c in self.children:
+            res += c.to_html()
+        return f"<{self.tag}{self.props_to_html()}>{res}</{self.tag}>"
+
+    
