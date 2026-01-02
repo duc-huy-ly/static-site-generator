@@ -60,6 +60,7 @@ def split_nodes_image(old_nodes):
                 new_nodes.append(TextNode(before, TextType.TEXT))
             new_nodes.append(TextNode(alt, TextType.IMAGE, url))
             current_text = after
+        # add the final element
         if current_text != "":
             new_nodes.append(TextNode(current_text, TextType.TEXT))
     return new_nodes
