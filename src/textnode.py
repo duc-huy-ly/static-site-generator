@@ -6,7 +6,7 @@ class TextType(Enum):
     ITALIC = "italic"
     CODE = "code"
     LINKS = "links"
-    IMAGES = "images"
+    IMAGE = "image"
 
 class TextNode:
     def __init__(self, text, text_type, url=None):
@@ -32,5 +32,5 @@ def text_node_to_html_node(text_node):
         return LeafNode("code", text_node.text )
     if node_type == TextType.LINKS:
         return LeafNode("a", text_node.text, {"href":text_node.url} )
-    if node_type == TextType.IMAGES:
+    if node_type == TextType.IMAGE:
         return LeafNode("img", "", {"src":text_node.url, "alt":text_node.text})

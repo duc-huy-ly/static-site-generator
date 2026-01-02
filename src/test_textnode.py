@@ -68,7 +68,7 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(html_node.props, {"href":"https://jog.example.net/"})
     
     def test_image_to_html(self):
-        node = TextNode("polish cow image", TextType.IMAGES, "https://i.ytimg.com/vi/9hhMUT2U2L4/mqdefault.jpg")
+        node = TextNode("polish cow image", TextType.IMAGE, "https://i.ytimg.com/vi/9hhMUT2U2L4/mqdefault.jpg")
         html_node = text_node_to_html_node(node)
         self.assertEqual(html_node.tag, 'img')
         self.assertEqual(html_node.value, "")
