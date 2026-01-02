@@ -1,7 +1,6 @@
 import unittest
 from textnode import TextNode, TextType
-from md_to_text_node import split_nodes_delimiter
-
+from md_to_text_node import *
 
 class TestSplitNodesDelimiter(unittest.TestCase):
     
@@ -184,6 +183,18 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         ]
         self.assertEqual(final_nodes, expected)
 
-
+class TestExtractImage(unittest.TestCase):
+    def test_extract_markdown_images(self):
+        matches = extract_markdown_images(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
+        )
+        self.assertListEqual([("image", "https://i.imgur.com/zjjcJKZ.png")], matches)
+        
+    def test_extract_markdown_link(self):
+        matches = extract_markdown_link(
+            """This is a link [my link](https://i.imgur.com/zjjcJKZ.png). Here is an image ![img](random.io)
+            Here is a final link [click me!!!](valve.com)"""
+        )
+        self.assertListEqual([("my link", "https://i.imgur.com/zjjcJKZ.png"),("click me!!!", "valve.com")], matches)
 if __name__ == "__main__":
     unittest.main()
