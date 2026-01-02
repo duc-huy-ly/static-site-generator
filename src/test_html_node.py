@@ -151,3 +151,6 @@ class TestHTMLNode(unittest.TestCase):
         expected_children = "".join([f"<span>child_{i}</span>" for i in range(10)])
         expected = f"<div>{expected_children}</div>"
         self.assertEqual(parent_node.to_html(), expected)
+        
+if __name__ == "__main__":
+    unittest.main()
