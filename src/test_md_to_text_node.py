@@ -135,6 +135,11 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             split_nodes_delimiter([node], "**", TextType.BOLD)
         self.assertEqual(str(context.exception), "Unmatched delimiter")
+        
+        node2 = TextNode("bad `code block`` here", TextType.TEXT)
+        with self.assertRaises(Exception) as context:
+            split_nodes_delimiter([node2], "`", TextType.CODE)
+        self.assertEqual(str(context.exception), "Unmatched delimiter")
     
     def test_split_nodes_delimiter_empty_list(self):
         """Test with empty list of nodes"""
