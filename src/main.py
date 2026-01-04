@@ -22,7 +22,7 @@ def copy_files(src, dst, is_root=True):
         elif os.path.isdir(src_path):
             os.mkdir(dst_path)
             copy_files(src_path, dst_path, is_root=False)
-            
+    # shutil.copytree(src, dst)       
 if __name__ == '__main__':
     main()
     
