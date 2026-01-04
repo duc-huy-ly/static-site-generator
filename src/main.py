@@ -2,10 +2,16 @@ from textnode import *
 import os
 import shutil
 from md_to_blocks import markdown_to_html_node
+import sys
 
-def main():
-    copy_files("static/", "public/")
-    generate_page_recursive("content/", "template.html", "public")
+def main(argv):
+    if len(argv) <=1 :
+        basepath = "/"
+    else :
+        basepath = argv[1]
+    copy_files("static/", "docs/")
+    # Use docs as destination directory as github pages convention
+    generate_page_recursive("content/", "template.html", "docs/", basepath) 
     return 0
     
 def copy_files(src, dst, is_root=True):
@@ -31,7 +37,7 @@ def extract_title(markdown):
         if line.strip().startswith("# "):
             return line.split("# ",1)[1]          
     
-def generate_page(src_path, template_path, dst_path):
+def generate_page(src_path, template_path, dst_path, basepath):
     print(f"Generating page from {src_path} to {dst_path} using {template_path}")
     src_md = open(src_path).read()
     template_html = open(template_path).read()
@@ -39,6 +45,7 @@ def generate_page(src_path, template_path, dst_path):
     
     title = extract_title(src_md)
     endfile = template_html.replace("{{ Content }}", src_html).replace("{{ Title }}", title)
+    endfile = endfile.replace('href="/', f'href="{basepath}').replace('src="/',f'src="{basepath}')
 
     # filepath = os.path.join(dst_path, f"{title}.html")
     if not os.path.exists(dst_path):
@@ -47,7 +54,7 @@ def generate_page(src_path, template_path, dst_path):
     with open(os.path.join(dst_path, f"{file_name}.html"), "x") as f:
         f.write(endfile)
         
-def generate_page_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_page_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     # Make sure they exist
     check_path([dir_path_content, template_path])
     if not os.path.exists(dest_dir_path):
@@ -67,13 +74,13 @@ def generate_page_recursive(dir_path_content, template_path, dest_dir_path):
             file_title = extract_title(file_content)
             # Write the content in template
             template_html = open(template_path).read()
-            result_html = template_html.replace("{{ Content }}", file_html).replace("{{ Title }}", file_title)
+            result_html = template_html.replace("{{ Content }}", file_html).replace("{{ Title }}", file_title).replace('href="/', f'href="{basepath}').replace('src="/',f'src="{basepath}')
             # Create the new html file in the destination directory
             with open(os.path.join(dest_dir_path, filename),"x") as fd1:
                 fd1.write(result_html)
         if os.path.isdir(content_path):
             # recursive call
-            generate_page_recursive(content_path, template_path, dest_dir_content_path)
+            generate_page_recursive(content_path, template_path, dest_dir_content_path, basepath)
     
 def check_path(paths):
     for path in paths:
@@ -81,5 +88,5 @@ def check_path(paths):
             raise Exception(path, " doest not exist")
         
 if __name__ == '__main__':
-    main()
+    main(sys.argv)
     
