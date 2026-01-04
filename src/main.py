@@ -90,6 +90,6 @@ if __name__ == '__main__':
     if len(sys.argv) <=1 :
         basepath = "/"
     else :
-        basepath = argv[1]
+        basepath = sys.argv[1]
     main(basepath)
     
