@@ -4,11 +4,10 @@ import shutil
 from md_to_blocks import markdown_to_html_node
 import sys
 
-def main(argv):
-    if len(argv) <=1 :
-        basepath = "/"
-    else :
-        basepath = argv[1]
+def main(basepath):
+    # Basepath is the selection of where the root of our project is. 
+    # Parsed from command line 
+    # Main is ran without arguments , it's 
     copy_files("static/", "docs/")
     # Use docs as destination directory as github pages convention
     generate_page_recursive("content/", "template.html", "docs/", basepath) 
@@ -88,5 +87,9 @@ def check_path(paths):
             raise Exception(path, " doest not exist")
         
 if __name__ == '__main__':
-    main(sys.argv)
+    if len(sys.argv) <=1 :
+        basepath = "/"
+    else :
+        basepath = argv[1]
+    main(basepath)
     
