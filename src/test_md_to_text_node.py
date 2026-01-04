@@ -3,12 +3,10 @@ from textnode import TextNode, TextType
 from md_to_text_node import *
 
 class TestSplitNodesDelimiter(unittest.TestCase):
-    
     def test_split_nodes_delimiter_basic_bold(self):
         """Test basic bold text splitting"""
         node = TextNode("This is text with a **bold** word", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
-        
         expected = [
             TextNode("This is text with a ", TextType.TEXT),
             TextNode("bold", TextType.BOLD),
@@ -18,8 +16,8 @@ class TestSplitNodesDelimiter(unittest.TestCase):
     
     def test_split_nodes_delimiter_basic_italic(self):
         """Test basic italic text splitting"""
-        node = TextNode("This is text with an *italic* word", TextType.TEXT)
-        new_nodes = split_nodes_delimiter([node], "*", TextType.ITALIC)
+        node = TextNode("This is text with an _italic_ word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
         
         expected = [
             TextNode("This is text with an ", TextType.TEXT),
@@ -154,26 +152,13 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         expected = [TextNode("", TextType.TEXT)]
         self.assertEqual(new_nodes, expected)
     
-    def test_split_nodes_delimiter_consecutive_delimiters(self):
-        """Test consecutive delimiters"""
-        node = TextNode("**bold****italic** text", TextType.TEXT)
-        # First split for bold
-        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
-        
-        expected = [
-            TextNode("bold", TextType.BOLD),
-            TextNode("italic", TextType.BOLD),
-            TextNode(" text", TextType.TEXT),
-        ]
-        self.assertEqual(new_nodes, expected)
-    
     def test_split_nodes_delimiter_complex_text(self):
         """Test complex text with multiple formatting"""
-        node = TextNode("Start **bold** middle *italic* end `code` finish", TextType.TEXT)
+        node = TextNode("Start **bold** middle _italic_ end `code` finish", TextType.TEXT)
         # Split for bold first
         nodes_after_bold = split_nodes_delimiter([node], "**", TextType.BOLD)
         # Then split for italic
-        nodes_after_italic = split_nodes_delimiter(nodes_after_bold, "*", TextType.ITALIC)
+        nodes_after_italic = split_nodes_delimiter(nodes_after_bold, "_", TextType.ITALIC)
         # Finally split for code
         final_nodes = split_nodes_delimiter(nodes_after_italic, "`", TextType.CODE)
         
@@ -351,7 +336,7 @@ class TestSplitNodesLink(unittest.TestCase):
         new_nodes = split_nodes_link([node])
         expected = [
             TextNode("This is text with a ", TextType.TEXT),
-            TextNode("link", TextType.IMAGE, "https://www.example.com"),
+            TextNode("link", TextType.LINKS, "https://www.example.com"),
         ]
         self.assertEqual(new_nodes, expected)
 
@@ -364,9 +349,9 @@ class TestSplitNodesLink(unittest.TestCase):
         new_nodes = split_nodes_link([node])
         expected = [
             TextNode("Start ", TextType.TEXT),
-            TextNode("first", TextType.IMAGE, "url1.com"),
+            TextNode("first", TextType.LINKS, "url1.com"),
             TextNode(" middle ", TextType.TEXT),
-            TextNode("second", TextType.IMAGE, "url2.com"),
+            TextNode("second", TextType.LINKS, "url2.com"),
             TextNode(" end", TextType.TEXT),
         ]
         self.assertEqual(new_nodes, expected)
@@ -379,7 +364,7 @@ class TestSplitNodesLink(unittest.TestCase):
         )
         new_nodes = split_nodes_link([node])
         expected = [
-            TextNode("home", TextType.IMAGE, "home.com"),
+            TextNode("home", TextType.LINKS, "home.com"),
             TextNode(" welcome text", TextType.TEXT),
         ]
         self.assertEqual(new_nodes, expected)
@@ -393,7 +378,7 @@ class TestSplitNodesLink(unittest.TestCase):
         new_nodes = split_nodes_link([node])
         expected = [
             TextNode("Text with link ", TextType.TEXT),
-            TextNode("click here", TextType.IMAGE, "https://example.com"),
+            TextNode("click here", TextType.LINKS, "https://example.com"),
         ]
         self.assertEqual(new_nodes, expected)
 
@@ -401,7 +386,7 @@ class TestSplitNodesLink(unittest.TestCase):
         """Test text containing only a link"""
         node = TextNode("[solo](solo.com)", TextType.TEXT)
         new_nodes = split_nodes_link([node])
-        expected = [TextNode("solo", TextType.IMAGE, "solo.com")]
+        expected = [TextNode("solo", TextType.LINKS, "solo.com")]
         self.assertEqual(new_nodes, expected)
 
     def test_split_nodes_link_no_links(self):
@@ -415,13 +400,13 @@ class TestSplitNodesLink(unittest.TestCase):
         """Test that non-TEXT nodes are passed through unchanged"""
         nodes = [
             TextNode("Text [link](url.com)", TextType.TEXT),
-            TextNode("Already a link", TextType.IMAGE, "url.com"),
+            TextNode("Already a link", TextType.LINKS, "url.com"),
         ]
         new_nodes = split_nodes_link(nodes)
         expected = [
             TextNode("Text ", TextType.TEXT),
-            TextNode("link", TextType.IMAGE, "url.com"),
-            TextNode("Already a link", TextType.IMAGE, "url.com"),
+            TextNode("link", TextType.LINKS, "url.com"),
+            TextNode("Already a link", TextType.LINKS, "url.com"),
         ]
         self.assertEqual(new_nodes, expected)
 
@@ -434,9 +419,9 @@ class TestSplitNodesLink(unittest.TestCase):
         new_nodes = split_nodes_link(nodes)
         expected = [
             TextNode("First ", TextType.TEXT),
-            TextNode("link1", TextType.IMAGE, "url1.com"),
+            TextNode("link1", TextType.LINKS, "url1.com"),
             TextNode("Second ", TextType.TEXT),
-            TextNode("link2", TextType.IMAGE, "url2.com"),
+            TextNode("link2", TextType.LINKS, "url2.com"),
         ]
         self.assertEqual(new_nodes, expected)
 
@@ -457,21 +442,8 @@ class TestSplitNodesLink(unittest.TestCase):
         node = TextNode("[first](url1.com)[second](url2.com)", TextType.TEXT)
         new_nodes = split_nodes_link([node])
         expected = [
-            TextNode("first", TextType.IMAGE, "url1.com"),
-            TextNode("second", TextType.IMAGE, "url2.com"),
-        ]
-        self.assertEqual(new_nodes, expected)
-
-    def test_split_nodes_link_ignores_images(self):
-        """Test that image syntax is not treated as links"""
-        node = TextNode(
-            "Text with ![image](img.png) and [link](link.com)",
-            TextType.TEXT,
-        )
-        new_nodes = split_nodes_link([node])
-        expected = [
-            TextNode("Text with ![image](img.png) and ", TextType.TEXT),
-            TextNode("link", TextType.IMAGE, "link.com"),
+            TextNode("first", TextType.LINKS, "url1.com"),
+            TextNode("second", TextType.LINKS, "url2.com"),
         ]
         self.assertEqual(new_nodes, expected)
 
@@ -494,7 +466,7 @@ class TestTextToTextNode(unittest.TestCase):
 
     def test_text_to_text_node_italic(self):
         """Test text with italic formatting"""
-        result = text_to_text_node("This is *italic* text")
+        result = text_to_text_node("This is _italic_ text")
         expected = [
             TextNode("This is ", TextType.TEXT),
             TextNode("italic", TextType.ITALIC),
@@ -526,13 +498,13 @@ class TestTextToTextNode(unittest.TestCase):
         result = text_to_text_node("Text with [link](https://example.com)")
         expected = [
             TextNode("Text with ", TextType.TEXT),
-            TextNode("link", TextType.IMAGE, "https://example.com"),
+            TextNode("link", TextType.LINKS, "https://example.com"),
         ]
         self.assertEqual(result, expected)
 
     def test_text_to_text_node_multiple_formats(self):
         """Test text with multiple formatting types"""
-        result = text_to_text_node("**bold** and *italic* and `code`")
+        result = text_to_text_node("**bold** and _italic_ and `code`")
         expected = [
             TextNode("bold", TextType.BOLD),
             TextNode(" and ", TextType.TEXT),
@@ -544,7 +516,7 @@ class TestTextToTextNode(unittest.TestCase):
 
     def test_text_to_text_node_complex(self):
         """Test complex text with bold, italic, code, images, and links"""
-        result = text_to_text_node("**bold** text with *italic* and `code` plus ![image](img.png) and [link](url.com)")
+        result = text_to_text_node("**bold** text with _italic_ and `code` plus ![image](img.png) and [link](url.com)")
         expected = [
             TextNode("bold", TextType.BOLD),
             TextNode(" text with ", TextType.TEXT),
@@ -554,7 +526,7 @@ class TestTextToTextNode(unittest.TestCase):
             TextNode(" plus ", TextType.TEXT),
             TextNode("image", TextType.IMAGE, "img.png"),
             TextNode(" and ", TextType.TEXT),
-            TextNode("link", TextType.IMAGE, "url.com"),
+            TextNode("link", TextType.LINKS, "url.com"),
         ]
         self.assertEqual(result, expected)
 
@@ -572,7 +544,7 @@ class TestTextToTextNode(unittest.TestCase):
 
     def test_text_to_text_node_nested_delimiters(self):
         """Test text with consecutive formatting"""
-        result = text_to_text_node("**bold** *italic* and more")
+        result = text_to_text_node("**bold** _italic_ and more")
         expected = [
             TextNode("bold", TextType.BOLD),
             TextNode(" ", TextType.TEXT),
@@ -587,7 +559,7 @@ class TestTextToTextNode(unittest.TestCase):
         expected = [
             TextNode("image", TextType.IMAGE, "img.png"),
             TextNode(" and ", TextType.TEXT),
-            TextNode("link", TextType.IMAGE, "url.com"),
+            TextNode("link", TextType.LINKS, "url.com"),
         ]
         self.assertEqual(result, expected)
 

@@ -1,6 +1,6 @@
 import unittest
 from md_to_blocks import markdown_to_html_node
-
+from html_node import LeafNode
 class TestMarkdownToHTML(unittest.TestCase):
         
     def test_paragraphs(self):
@@ -9,7 +9,7 @@ This is **bolded** paragraph
 text in a p
 tag here
 
-This is another paragraph with *italic* text and `code` here
+This is another paragraph with _italic_ text and `code` here
 
 """
 
@@ -34,3 +34,9 @@ the **same** even with inline stuff
             html,
             "<div><pre><code>This is text that *should* remain\nthe **same** even with inline stuff\n</code></pre></div>"
         )
+    
+    # def test_links(self):
+    #     md = "[alt](url.fr)"
+    #     html_node = markdown_to_html_node(md)
+    #     self.assertEqual(html_node.tag, "a")
+

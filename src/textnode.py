@@ -34,3 +34,8 @@ def text_node_to_html_node(text_node):
         return LeafNode("a", text_node.text, {"href":text_node.url} )
     if node_type == TextType.IMAGE:
         return LeafNode("img", "", {"src":text_node.url, "alt":text_node.text})
+    
+# test = LeafNode("a", "img", {"href":"link.org"})
+# test2 = LeafNode("p", "Hello")
+# print(test.to_html())
+# print(test2.to_html())

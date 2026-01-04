@@ -9,7 +9,7 @@ Searches for bold, italic, code, images and links
 def text_to_text_node(text : str) -> List[TextNode]:
     initial_text_node = TextNode(text, TextType.TEXT)
     x_0 = split_nodes_delimiter([initial_text_node], "**", TextType.BOLD)
-    x_1 = split_nodes_delimiter(x_0, '*', TextType.ITALIC)
+    x_1 = split_nodes_delimiter(x_0, '_', TextType.ITALIC)
     x_2 = split_nodes_delimiter(x_1, '`', TextType.CODE)
     x_3 = split_nodes_image(x_2)
     x_4 = split_nodes_link(x_3)
@@ -29,8 +29,6 @@ def extract_markdown_link(text : str) -> List[Tuple[str, str]]:
     #  	[title](https://www.example.com)
     link_regex = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
     return re.findall(link_regex, text)
-
-
 
 def split_nodes_delimiter(old_nodes: List[TextNode], delimiter: str, text_type: TextType) -> List[TextNode]:
     new_nodes = []
@@ -103,7 +101,7 @@ def split_nodes_link(old_nodes : List[TextNode]) -> List[TextNode]:
             before, after = current_text.split(pattern, 1) 
             if before:
                 new_nodes.append(TextNode(before, TextType.TEXT))
-            new_nodes.append(TextNode(alt, TextType.IMAGE, url))
+            new_nodes.append(TextNode(alt, TextType.LINKS, url))
             current_text = after
         # this is the remainder 
         if current_text != "":

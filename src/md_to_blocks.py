@@ -3,13 +3,11 @@ from html_node import *
 from textnode import *
 from md_to_text_node import *
 import re
+
 """ 
 In our simple markdown parser, we are not allowed to put blank lines inside the code blocks. The parsing done is very simplistic by splitting the original document (string) with the \n\n delimiter.
 Inserting blank lines inside code blocks will split the code block.
-
-
 """
-
 class BlockType(Enum):
     HEADING = 1
     CODEBLOCK = 2
@@ -37,7 +35,6 @@ def block_to_block_type(block: str) -> BlockType :
     # All checks passed
     return BlockType.OLIST
     
-
 def markdown_to_blocks(doc : str) -> []:
     """
     Takes raw markdown string and turns it into a list of blocks of string.
@@ -99,8 +96,7 @@ def text_to_children(inline):
     for text_node in text_nodes:
         root.append(text_node_to_html_node(text_node))
     return root
-            
-    
+                
 def determine_tag_type(text, type ):
     if type == BlockType.HEADING:
         number_of_hashes = 0
@@ -119,21 +115,3 @@ def determine_tag_type(text, type ):
         return "blockquote"
     else :
         return "p"
-
-md = """
-This is **bolded** paragraph
-text in a p
-tag here
-
-This is another paragraph with *italic* text and `print('hello world')` here
-
-"""
-md2 = """
-```
-This is text that *should* remain
-the **same** even with inline stuff
-```
-
-"""
-print(markdown_to_html_node(md).to_html())
-print(markdown_to_html_node(md2).to_html())

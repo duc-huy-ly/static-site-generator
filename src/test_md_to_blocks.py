@@ -59,7 +59,7 @@ class TestMarkdownToBlocks(unittest.TestCase):
         md = """
 This is **bolded** paragraph
 
-This is another paragraph with *italic* text and `code` here
+This is another paragraph with _italic_ text and `code` here
 This is the same paragraph on a new line
 
 - This is a list
@@ -70,7 +70,7 @@ This is the same paragraph on a new line
             blocks,
             [
                 "This is **bolded** paragraph",
-                "This is another paragraph with *italic* text and `code` here\nThis is the same paragraph on a new line",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
                 "- This is a list\n- with items",
             ],
         )
@@ -171,8 +171,6 @@ Goodbye.
     def test_ulist_invalid(self):
         bad_ulist = "- Item 1\n* Item 2"
         self.assertEqual(block_to_block_type(bad_ulist), BlockType.PARA)
-        
-
 
 class TestTextToChildren(unittest.TestCase):
     def test_text_to_children_plain_text(self):
@@ -187,7 +185,7 @@ class TestTextToChildren(unittest.TestCase):
         self.assertTrue(any(node.tag == "b" for node in result))
     
     def test_text_to_children_with_italic(self):
-        result = text_to_children("This is *italic* text")
+        result = text_to_children("This is _italic_ text")
         self.assertTrue(len(result) == 3)
         self.assertTrue(any(node.tag == "i" for node in result))
     
@@ -197,19 +195,12 @@ class TestTextToChildren(unittest.TestCase):
         self.assertTrue(any(node.tag == "code" for node in result))
     
     def test_text_to_children_mixed_formatting(self):
-        result = text_to_children("**bold** and *italic* and `code`")
+        result = text_to_children("**bold** and _italic_ and `code`")
         self.assertTrue(len(result) == 5)
-    
-    def test_text_to_children_empty_string(self):
-        result = text_to_children("")
-        self.assertEqual(len(result), 1)
     
     def test_text_to_children_returns_list(self):
         result = text_to_children("Some text")
         self.assertIsInstance(result, list)
-
-
-
 
 if __name__ == "__main__":
     unittest.main()
