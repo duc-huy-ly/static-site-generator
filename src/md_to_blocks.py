@@ -51,35 +51,44 @@ def markdown_to_blocks(doc : str) -> []:
 def markdown_to_html_node(doc : str) -> HTMLNode:
     root = ParentNode("div", children=[])
     for text_block in markdown_to_blocks(doc):
-        # print(text_block)
         type = block_to_block_type(text_block)
         if type == BlockType.CODEBLOCK :
-            wrapper = ParentNode("pre", [LeafNode("code", text_block.strip("```"))])
+            inner = text_block.strip() # trim outer whitespaces
+            inner = inner.removeprefix("```").removesuffix("```")
+            inner = inner.lstrip("\n")
+            wrapper = ParentNode("pre", [LeafNode("code", inner)])
             root.children.append(wrapper)
             # root.children.append(LeafNode("code", text_block.strip("```")))
         elif type == BlockType.ULIST:
             ulist_elements = []
             for line in text_block.split("\n") :
-                ulist_elements.append(ParentNode("li", text_to_children(line.strip("- "))))
+                if not line.strip():
+                    continue
+                ulist_elements.append(ParentNode("li", text_to_children(line.lstrip("- "))))
             root.children.append(ParentNode("ul", ulist_elements))
         elif type == BlockType.OLIST:
             olist_elements = []
             for line in text_block.split("\n"):
                 # Remove the numbering system, values on the right part of the line
-                olist_elements.append(ParentNode("li", text_to_children(line.strip(". ")[1])))
+                olist_elements.append(ParentNode("li", text_to_children(line.split(". ")[1])))
             root.children.append(ParentNode("ol", olist_elements))
         elif type == BlockType.HEADING:
             number_of_hashes = 0
             for i in range(0, 6):
-                if text[i] != "#":
+                if text_block[i] != "#":
                     break
                 number_of_hashes += 1
             hashes = "#"*number_of_hashes+" "
-            root.children.append(LeafNode(f"h{number_of_hashes}", text_block.strip(hashes)))
+            content = text_to_children(text_block.strip(hashes))
+            root.children.append(ParentNode(f"h{number_of_hashes}", content))
         elif type == BlockType.QUOTEBLOCK:
-            root.children.append(ParentNode("blockquote", text_to_children(text_block.strip('> '))))
+            lines = text_block.split("\n")
+            clean_lines = [line.lstrip("> ") for line in lines]
+            children = text_to_children("\n".join(clean_lines))
+            root.children.append(ParentNode("blockquote", children))
         else:
-            html_node_of_text_block = ParentNode("p", text_to_children(text_block))
+            edited_text = text_block.replace("\n"," ")
+            html_node_of_text_block = ParentNode("p", text_to_children(edited_text))
             root.children.append(html_node_of_text_block)
     return root
 
@@ -120,16 +129,11 @@ This is another paragraph with *italic* text and `print('hello world')` here
 
 """
 md2 = """
-hello 
-
 ```
-This is text that _should_ remain
+This is text that *should* remain
 the **same** even with inline stuff
 ```
 
-another one. 
-Bites the buts
-
 """
-# print(markdown_to_html_node(md).to_html())
+print(markdown_to_html_node(md).to_html())
 print(markdown_to_html_node(md2).to_html())
